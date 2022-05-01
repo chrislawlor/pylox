@@ -9,6 +9,15 @@ def get_scanner(source: str) -> Scanner:
     return Scanner(Lox(), source)
 
 
+@pytest.mark.parametrize(
+    "char,expected",
+    [("a", True), ("1", False), ("A", True), ("_", True), ("z", True), ("Z", True)],
+)
+def test_is_alpha(char: str, expected: bool):
+    scanner = get_scanner("")
+    assert scanner._is_alpha(char) is expected
+
+
 def test_is_at_end():
     scanner = get_scanner("")
     assert scanner._is_at_end() is True
@@ -102,6 +111,8 @@ def test_number_float():
         ("\t\r", [T.EOF]),
         ('"string"', [T.STRING, T.EOF]),
         ("123", [T.NUMBER, T.EOF]),
+        ("or", [T.OR, T.EOF]),
+        ("print", [T.PRINT, T.EOF]),
     ],
 )
 def test_scan_tokens(source, expected_token_types):

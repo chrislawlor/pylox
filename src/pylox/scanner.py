@@ -1,3 +1,4 @@
+import re
 from typing import Any, List, Optional
 
 from .token import Token
@@ -5,6 +6,26 @@ from .token import TokenType as T
 
 
 class Scanner:
+
+    KEYWORDS = {
+        "and": T.AND,
+        "class": T.CLASS,
+        "else": T.ELSE,
+        "false": T.FALSE,
+        "for": T.FOR,
+        "fun": T.FUN,
+        "if": T.IF,
+        "nil": T.NIL,
+        "or": T.OR,
+        "print": T.PRINT,
+        "return": T.RETURN,
+        "super": T.SUPER,
+        "this": T.THIS,
+        "true": T.TRUE,
+        "var": T.VAR,
+        "while": T.WHILE,
+    }
+
     def __init__(self, lox, source: str):
         from .lox import Lox
 
@@ -14,6 +35,8 @@ class Scanner:
         self.start = 0
         self.current = 0
         self.line = 1
+
+        self._ALPHA_RGX = re.compile(r"[A-Za-z_]")
 
     def scan_tokens(self) -> List[Token]:
         while not self._is_at_end():
@@ -76,8 +99,19 @@ class Scanner:
             case _:
                 if self._is_digit(c):
                     self._number()
+                elif self._is_alpha(c):
+                    self._identifier()
                 else:
                     self.lox.error(self.line, "Unexpected character.")
+
+    def _identifier(self):
+        while self._is_alphanumeric(self._peek()):
+            self._advance()
+
+        text = self.source[self.start : self.current]
+        type_ = self.KEYWORDS.get(text, T.IDENTIFIER)
+
+        self._add_token(type_)
 
     def _number(self):
         type_ = int
@@ -138,6 +172,12 @@ class Scanner:
         if self.current + 1 >= len(self.source):
             return "\0"
         return self.source[self.current + 1]
+
+    def _is_alpha(self, c: str) -> bool:
+        return bool(self._ALPHA_RGX.match(c))
+
+    def _is_alphanumeric(self, c: str) -> bool:
+        return self._is_alpha(c) or self._is_digit(c)
 
     def _is_digit(self, c: str) -> bool:
         return "0" <= c <= "9"
