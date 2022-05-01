@@ -1,4 +1,4 @@
-from typing import List, Any, Optional
+from typing import Any, List, Optional
 
 from .token import Token
 from .token import TokenType as T
@@ -70,8 +70,47 @@ class Scanner:
             case "\n":
                 self.line += 1
 
+            case '"':
+                self._string()
+
             case _:
-                self.lox.error(self.line, "Unexpected character.")
+                if self._is_digit(c):
+                    self._number()
+                else:
+                    self.lox.error(self.line, "Unexpected character.")
+
+    def _number(self):
+        type_ = int
+        while self._is_digit(self._peek()):
+            self._advance()
+
+        # Look for fractional part
+        if self._peek() == "." and self._is_digit(self._peek_next()):
+            # Consumer the "."
+            type_ = float
+            self._advance()
+
+            while self._is_digit(self._peek()):
+                self._advance()
+
+        self._add_token(T.NUMBER, type_(self.source[self.start : self.current]))
+
+    def _string(self):
+        while self._peek() != '"' and not self._is_at_end():
+            if self._peek() == "\n":
+                self.line += 1
+            self._advance()
+
+        if self._is_at_end():
+            self.lox.error(self.line, "Unterminated string.")
+            return
+
+        # The closing ".
+        self._advance()
+
+        # Trim surrounding quotes
+        value = self.source[self.start + 1 : self.current - 1]
+        self._add_token(T.STRING, value)
 
     def _is_at_end(self) -> bool:
         return self.current >= len(self.source)
@@ -94,6 +133,14 @@ class Scanner:
         if self._is_at_end():
             return "\0"
         return self.source[self.current]
+
+    def _peek_next(self) -> str:
+        if self.current + 1 >= len(self.source):
+            return "\0"
+        return self.source[self.current + 1]
+
+    def _is_digit(self, c: str) -> bool:
+        return "0" <= c <= "9"
 
     def _add_token(self, type_: T, literal: Optional[Any] = None):
         text = self.source[self.start : self.current]
