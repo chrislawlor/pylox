@@ -26,7 +26,6 @@ class Scanner:
     def _scan_token(self):
         self.start = self.current
         c = self._advance()
-        print(f"Advanced to {c} self.current = {self.current}")
 
         match c:
             case "(":
