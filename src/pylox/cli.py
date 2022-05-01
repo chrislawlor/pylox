@@ -6,7 +6,7 @@ from .lox import Lox
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("file", default=None)
+    parser.add_argument("file", default=None, nargs="?")
 
     args = parser.parse_args()
 
@@ -14,7 +14,10 @@ def main():
     if args.file:
         lox.run_file(args.file)
     else:
-        lox.run_prompt()
+        try:
+            lox.run_prompt()
+        except KeyboardInterrupt:
+            print("")
 
 
 if __name__ == "__main__":
