@@ -1,0 +1,31 @@
+# This file is generated via generate_ast.py
+
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Any, Protocol
+
+from .token import Token
+
+
+class Visitor(Protocol):
+
+    {% for node in nodes %}
+    def visit{{ node[0] }}{{ base_class }}(self, {{ base_class.lower() }}: "{{ node[0] }}"): ...
+    {% endfor %}
+
+
+class {{ base_class }}(ABC):
+    @abstractmethod
+    def accept(self, visitor: Visitor):...
+
+{% for node in nodes %}
+@dataclass
+class {{ node[0] }}({{ base_class }}):
+{%- for field in node[1] %}
+    {{ field[0] }}: {{ field[1] }}
+{%- endfor %}
+
+    def accept(self, visitor: Visitor):
+        visitor.visit{{ node[0] }}{{ base_class }}(self)
+
+{% endfor %}
