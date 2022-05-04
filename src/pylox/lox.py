@@ -1,7 +1,10 @@
 import sys
+from functools import singledispatchmethod
 from pathlib import Path
 
 from .scanner import Scanner
+from .token import Token
+from .token import TokenType as T
 
 
 class Lox:
@@ -31,8 +34,20 @@ class Lox:
         for token in tokens:
             print(token)
 
-    def error(self, line: int, message: str):
+    @singledispatchmethod
+    def error(self, arg, message: str):
+        raise NotImplementedError("Invalid error argument.")
+
+    @error.register
+    def _(self, line: int, message: str):
         self.report(line, "", message)
+
+    @error.register
+    def _(self, token: Token, message: str):
+        if token.type == T.EOF:
+            self.report(token.line, " at end", message)
+        else:
+            self.report(token.line, f" at '{token.lexeme}'", message)
 
     def report(self, line: int, where: str, message: str):
         print(f"[line {line}] Error{where}: {message}", file=sys.stdout)

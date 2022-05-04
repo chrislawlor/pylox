@@ -1,7 +1,5 @@
 from typing import List
 
-import pylox
-
 from . import expr as Expr
 from .token import Token
 from .token import TokenType as T
@@ -12,8 +10,10 @@ class ParseError(Exception):
 
 
 class Parser:
-    def __init__(self, lox: "pylox.lox.Lox", tokens: List[Token]):
-        self.lox = lox
+    def __init__(self, lox, tokens: List[Token]):
+        from .lox import Lox
+
+        self.lox: Lox = lox
         self.tokens = tokens
         self.current = 0
 
