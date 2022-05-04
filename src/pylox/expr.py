@@ -2,22 +2,26 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Any
 
 from .token import Token
 
 
-class Visitor(Protocol):
-    def visitBinaryExpr(self, expr: "Binary"):
+class Visitor(ABC):
+    @abstractmethod
+    def visit_binary_expr(self, expr: "Binary"):
         ...
 
-    def visitGroupingExpr(self, expr: "Grouping"):
+    @abstractmethod
+    def visit_grouping_expr(self, expr: "Grouping"):
         ...
 
-    def visitLiteralExpr(self, expr: "Literal"):
+    @abstractmethod
+    def visit_literal_expr(self, expr: "Literal"):
         ...
 
-    def visitUnaryExpr(self, expr: "Unary"):
+    @abstractmethod
+    def visit_unary_expr(self, expr: "Unary"):
         ...
 
 
@@ -34,7 +38,7 @@ class Binary(Expr):
     right: Expr
 
     def accept(self, visitor: Visitor):
-        visitor.visit_binary_expr(self)
+        return visitor.visit_binary_expr(self)
 
 
 @dataclass
@@ -42,7 +46,7 @@ class Grouping(Expr):
     expression: Expr
 
     def accept(self, visitor: Visitor):
-        visitor.visit_grouping_expr(self)
+        return visitor.visit_grouping_expr(self)
 
 
 @dataclass
@@ -50,7 +54,7 @@ class Literal(Expr):
     value: Any
 
     def accept(self, visitor: Visitor):
-        visitor.visit_literal_expr(self)
+        return visitor.visit_literal_expr(self)
 
 
 @dataclass
@@ -59,4 +63,4 @@ class Unary(Expr):
     right: Expr
 
     def accept(self, visitor: Visitor):
-        visitor.visit_unary_expr(self)
+        return visitor.visit_unary_expr(self)
