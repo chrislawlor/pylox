@@ -1,6 +1,8 @@
 import re
 from typing import Any, List, Optional
 
+import pylox
+
 from .token import Token
 from .token import TokenType as T
 
@@ -26,10 +28,8 @@ class Scanner:
         "while": T.WHILE,
     }
 
-    def __init__(self, lox, source: str):
-        from .lox import Lox
-
-        self.lox: Lox = lox
+    def __init__(self, lox: "pylox.lox.Lox", source: str):
+        self.lox = lox
         self.source = source
         self.tokens: List[Token] = []
         self.start = 0

@@ -53,13 +53,13 @@ class TokenType(Enum):
 
 class Token:
     def __init__(self, type_: TokenType, lexeme: str, literal: object, line: int):
-        self.type_ = type_
+        self.type = type_
         self.lexeme = lexeme
         self.literal = literal
         self.line = line
 
     def __str__(self):
-        return f"{self.type_.name} {self.lexeme} {self.literal}"
+        return f"{self.type.name} {self.lexeme} {self.literal}"
 
     def __repr__(self):
-        return f"<Token {self.type_.name} {self.lexeme} {self.literal}"
+        return f"<Token {self.type.name} {self.lexeme} {self.literal}"

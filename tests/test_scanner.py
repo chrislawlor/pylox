@@ -51,19 +51,19 @@ def test_match():
 def test_scan_token_by_token():
     scanner = get_scanner("+-*")
     scanner._scan_token()
-    assert [t.type_ for t in scanner.tokens] == [T.PLUS]
+    assert [t.type for t in scanner.tokens] == [T.PLUS]
     scanner._scan_token()
-    assert [t.type_ for t in scanner.tokens] == [T.PLUS, T.MINUS]
+    assert [t.type for t in scanner.tokens] == [T.PLUS, T.MINUS]
     scanner._scan_token()
-    assert [t.type_ for t in scanner.tokens] == [T.PLUS, T.MINUS, T.STAR]
+    assert [t.type for t in scanner.tokens] == [T.PLUS, T.MINUS, T.STAR]
 
 
 def test_scan_token_by_token_with_slash():
     scanner = get_scanner("/-")
     scanner._scan_token()
-    assert [t.type_ for t in scanner.tokens] == [T.SLASH]
+    assert [t.type for t in scanner.tokens] == [T.SLASH]
     scanner._scan_token()
-    assert [t.type_ for t in scanner.tokens] == [T.SLASH, T.MINUS]
+    assert [t.type for t in scanner.tokens] == [T.SLASH, T.MINUS]
 
 
 def test_string():
@@ -71,7 +71,7 @@ def test_string():
     scanner.scan_tokens()
     assert len(scanner.tokens) == 2
     token = scanner.tokens[0]
-    assert token.type_ == T.STRING
+    assert token.type == T.STRING
     assert token.lexeme == '"string"'
     assert token.literal == "string"
 
@@ -81,7 +81,7 @@ def test_number_int():
     scanner.scan_tokens()
     assert len(scanner.tokens) == 2
     token = scanner.tokens[0]
-    assert token.type_ == T.NUMBER
+    assert token.type == T.NUMBER
     assert token.lexeme == "123"
     assert token.literal == 123
 
@@ -91,7 +91,7 @@ def test_number_float():
     scanner.scan_tokens()
     assert len(scanner.tokens) == 2
     token = scanner.tokens[0]
-    assert token.type_ == T.NUMBER
+    assert token.type == T.NUMBER
     assert token.lexeme == "123.0"
     assert token.literal == 123.0
 
@@ -118,5 +118,5 @@ def test_number_float():
 def test_scan_tokens(source, expected_token_types):
     scanner = get_scanner(source)
     tokens = scanner.scan_tokens()
-    token_types = [t.type_ for t in tokens]
+    token_types = [t.type for t in tokens]
     assert token_types == expected_token_types
