@@ -26,6 +26,6 @@ class {{ node[0] }}({{ base_class }}):
 {%- endfor %}
 
     def accept(self, visitor: Visitor):
-        visitor.visit{{ node[0] }}{{ base_class }}(self)
+        visitor.visit_{{ node[0].lower() }}_{{ base_class.lower() }}(self)
 
 {% endfor %}
