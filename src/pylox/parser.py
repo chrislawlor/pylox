@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from . import expr as Expr
 from .token import Token
@@ -16,6 +16,12 @@ class Parser:
         self.lox: Lox = lox
         self.tokens = tokens
         self.current = 0
+
+    def parse(self) -> Optional[Expr.Expr]:
+        try:
+            return self.expression()
+        except ParseError:
+            return None
 
     def expression(self) -> Expr.Expr:
         return self.equality()
@@ -81,7 +87,7 @@ class Parser:
             self.consume(T.RIGHT_PAREN, 'Expect ")" after expression.')
             return Expr.Grouping(expr)
 
-        raise self.error(self.peek(), "Invalid primary match")
+        raise self.error(self.peek(), "Expect expression.")
 
     def match(self, *types: T) -> bool:
         for type_ in types:
@@ -97,7 +103,7 @@ class Parser:
         raise self.error(self.peek(), message)
 
     def check(self, type_: T) -> bool:
-        if not self.is_at_end():
+        if self.is_at_end():
             return False
         return self.peek().type == type_
 

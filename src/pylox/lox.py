@@ -2,6 +2,8 @@ import sys
 from functools import singledispatchmethod
 from pathlib import Path
 
+from .parser import Parser
+from .printer import AstPrinter
 from .scanner import Scanner
 from .token import Token
 from .token import TokenType as T
@@ -29,10 +31,15 @@ class Lox:
     def run(self, source: str):
         scanner = Scanner(self, source)
         tokens = scanner.scan_tokens()
+        parser = Parser(self, tokens)
 
-        # For now, just print the tokens
-        for token in tokens:
-            print(token)
+        expression = parser.parse()
+
+        # Stop if there was a syntax error
+        if self.had_error or expression is None:
+            return
+
+        print(AstPrinter().print(expression))
 
     @singledispatchmethod
     def error(self, arg, message: str):
