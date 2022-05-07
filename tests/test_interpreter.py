@@ -1,3 +1,4 @@
+from io import StringIO
 from unittest.mock import MagicMock
 
 import pytest
@@ -14,8 +15,35 @@ def interpreter() -> Interpreter:
     return Interpreter(Lox())
 
 
+def test_interpret():
+    output = StringIO()
+    interpreter = Interpreter(Lox(), out=output)
+    expr = Expr.Literal(1.0)
+
+    interpreter.interpret(expr)
+
+    assert output.getvalue() == "1.0\n"
+
+
+def test_runtime_error_reports():
+    lox = MagicMock(spec=Lox)
+    interpreter = Interpreter(lox)
+
+    # Should raise a LoxDivisionByZero error
+    expr = Expr.Binary(
+        left=Expr.Literal(1),
+        operator=Token(T.SLASH, "/", None, line=1),
+        right=Expr.Literal(0),
+    )
+
+    interpreter.interpret(expr)
+
+    lox.runtime_error.assert_called_once()
+
+
 @pytest.mark.parametrize(
-    "value,expected", [(True, "true"), (False, "false"), (None, "nil")]
+    "value,expected",
+    [(True, "true"), (False, "false"), (None, "nil"), (1, "1"), (1.0, "1.0")],
 )
 def test_stringify(interpreter: Interpreter, value, expected):
     assert interpreter.stringify(value) == expected

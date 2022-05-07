@@ -1,3 +1,4 @@
+import sys
 from typing import Any
 
 from . import expr as Expr
@@ -16,15 +17,16 @@ class LoxDivisionByZero(LoxRuntimeError):
 
 
 class Interpreter(Expr.Visitor):
-    def __init__(self, lox):
+    def __init__(self, lox, out=sys.stdout):
         from .lox import Lox
 
         self.lox: Lox = lox
+        self.out = out
 
     def interpret(self, expression: Expr.Expr) -> None:
         try:
             value = self.evaluate(expression)
-            print(self.stringify(value))
+            print(self.stringify(value), file=self.out)
         except LoxRuntimeError as error:
             self.lox.runtime_error(error)
 
