@@ -124,3 +124,25 @@ class Parser:
     def error(self, token: Token, message: str) -> ParseError:
         self.lox.error(token, message)
         return ParseError()
+
+    def synchronize(self):
+        self.advance()
+
+        while not self.is_at_end():
+            if self.previous().type == T.SEMICOLON:
+                return
+
+            match self.peek().type:
+                case (  # noqa: E211
+                    T.CLASS
+                    | T.FUN
+                    | T.VAR
+                    | T.FOR
+                    | T.IF
+                    | T.WHILE
+                    | T.PRINT
+                    | T.RETURN
+                ):
+                    return
+
+            self.advance()

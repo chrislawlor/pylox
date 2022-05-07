@@ -54,3 +54,21 @@ def test_missing_right_paren_errors():
 
     with pytest.raises(ParseError):
         parser.expression()
+
+
+def test_synchronize_to_semicolon():
+    tokens = create_tokens("1", "+", "2", ";", "3")
+    parser = Parser(Lox(), tokens)
+
+    parser.synchronize()
+
+    assert parser.peek().lexeme == "3"
+
+
+def test_synchronize_to_statement_boundary():
+    tokens = create_tokens("2", "-", "1", "return", "true")
+    parser = Parser(Lox(), tokens)
+
+    parser.synchronize()
+
+    assert parser.peek().lexeme == "return"
