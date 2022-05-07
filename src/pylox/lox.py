@@ -2,8 +2,8 @@ import sys
 from functools import singledispatchmethod
 from pathlib import Path
 
+from .interpreter import Interpreter, LoxRuntimeError
 from .parser import Parser
-from .printer import AstPrinter
 from .scanner import Scanner
 from .token import Token
 from .token import TokenType as T
@@ -13,7 +13,9 @@ class Lox:
     PROMPT = "> "
 
     def __init__(self):
+        self.interpreter = Interpreter(self)
         self.had_error = False
+        self.had_runtime_error = False
 
     def run_file(self, path: Path):
         with open(path) as f:
@@ -21,6 +23,9 @@ class Lox:
 
         if self.had_error:
             sys.exit(65)
+
+        if self.had_runtime_error:
+            sys.exit(70)
 
     def run_prompt(self):
         while True:
@@ -39,7 +44,7 @@ class Lox:
         if self.had_error or expression is None:
             return
 
-        print(AstPrinter().print(expression))
+        self.interpreter.interpret(expression)
 
     @singledispatchmethod
     def error(self, arg, message: str):
@@ -55,6 +60,10 @@ class Lox:
             self.report(token.line, " at end", message)
         else:
             self.report(token.line, f" at '{token.lexeme}'", message)
+
+    def runtime_error(self, error: LoxRuntimeError):
+        print(f"{error}\n[line {error.token.line}]", file=sys.stderr)
+        self.had_runtime_error = True
 
     def report(self, line: int, where: str, message: str):
         print(f"[line {line}] Error{where}: {message}", file=sys.stdout)
