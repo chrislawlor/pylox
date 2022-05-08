@@ -1,5 +1,5 @@
 import sys
-from typing import Any
+from typing import Any, List
 
 from . import ast
 from .token import Token
@@ -16,22 +16,32 @@ class LoxDivisionByZero(LoxRuntimeError):
     pass
 
 
-class Interpreter(ast.ExprVisitor):
+class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
     def __init__(self, lox, out=sys.stdout):
         from .lox import Lox
 
         self.lox: Lox = lox
         self.out = out
 
-    def interpret(self, expression: ast.Expr) -> None:
+    def interpret(self, statements: List[ast.Stmt]) -> None:
         try:
-            value = self.evaluate(expression)
-            print(self.stringify(value), file=self.out)
+            for statement in statements:
+                self.execute(statement)
         except LoxRuntimeError as error:
             self.lox.runtime_error(error)
 
     def evaluate(self, expr: ast.Expr):
         return expr.accept(self)
+
+    def execute(self, stmt: ast.Stmt):
+        stmt.accept(self)
+
+    def visit_expression_stmt(self, stmt: ast.ExpressionStmt):
+        self.evaluate(stmt.expression)
+
+    def visit_print_stmt(self, stmt: ast.PrintStmt):
+        value = self.evaluate(stmt.expression)
+        print(self.stringify(value), file=self.out)
 
     def visit_binary_expr(self, expr: ast.BinaryExpr):
         # Lox evaluates expressions in left-to-right order

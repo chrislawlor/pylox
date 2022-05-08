@@ -38,13 +38,13 @@ class Lox:
         tokens = scanner.scan_tokens()
         parser = Parser(self, tokens)
 
-        expression = parser.parse()
+        statements = parser.parse()
 
         # Stop if there was a syntax error
-        if self.had_error or expression is None:
+        if self.had_error:
             return
 
-        self.interpreter.interpret(expression)
+        self.interpreter.interpret(statements)
 
     @singledispatchmethod
     def error(self, arg, message: str):

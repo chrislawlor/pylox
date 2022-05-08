@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 
 from . import ast
 from .token import Token
@@ -17,14 +17,29 @@ class Parser:
         self.tokens = tokens
         self.current = 0
 
-    def parse(self) -> Optional[ast.Expr]:
-        try:
-            return self.expression()
-        except ParseError:
-            return None
+    def parse(self) -> List[ast.Stmt]:
+        statements: List[ast.Stmt] = []
+        while not self.is_at_end():
+            statements.append(self.statement())
+        return statements
 
     def expression(self) -> ast.Expr:
         return self.equality()
+
+    def statement(self) -> ast.Stmt:
+        if self.match(T.PRINT):
+            return self.print_statement()
+        return self.expression_statement()
+
+    def print_statement(self) -> ast.Stmt:
+        value = self.expression()
+        self.consume(T.SEMICOLON, 'Expect ";" after value.')
+        return ast.PrintStmt(value)
+
+    def expression_statement(self) -> ast.Stmt:
+        expr = self.expression()
+        self.consume(T.SEMICOLON, 'Expect ";" after expression.')
+        return ast.ExpressionStmt(expr)
 
     def equality(self) -> ast.Expr:
         expr = self.comparison()

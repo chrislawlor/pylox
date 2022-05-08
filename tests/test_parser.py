@@ -2,6 +2,7 @@ from typing import List
 
 import pytest
 
+from pylox import ast
 from pylox.lox import Lox
 from pylox.parser import ParseError, Parser
 from pylox.printer import AstPrinter
@@ -29,14 +30,17 @@ def create_tokens(*lexemes: str) -> List[Token]:
 
 
 def test_parse_simple():
-    tokens = create_tokens("1", "+", "2")
+    tokens = create_tokens("1", "+", "2", ";")
     parser = Parser(Lox(), tokens)
 
-    expr = parser.parse()
+    statements = parser.parse()
 
-    assert expr is not None
+    assert len(statements) == 1
 
-    assert AstPrinter().print(expr) == "(+ 1 2)"
+    expression_stmt = statements[0]
+    assert isinstance(expression_stmt, ast.ExpressionStmt)
+
+    assert AstPrinter().print(expression_stmt.expression) == "(+ 1 2)"
 
 
 def test_consume_error():
