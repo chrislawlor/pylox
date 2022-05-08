@@ -1,6 +1,6 @@
 import pytest
 
-from pylox import expr as Expr
+from pylox import ast
 from pylox.printer import AstPrinter
 from pylox.token import Token
 from pylox.token import TokenType as T
@@ -13,13 +13,13 @@ def printer():
 
 def test_parenthesize(printer):
 
-    result = printer.parenthesize("literal", Expr.Literal(123))
+    result = printer.parenthesize("literal", ast.LiteralExpr(123))
 
     assert result == "(literal 123)"
 
 
 def test_print_nil(printer):
-    expression = Expr.Literal(None)
+    expression = ast.LiteralExpr(None)
     assert expression.value is None
 
     output = printer.print(expression)
@@ -28,10 +28,10 @@ def test_print_nil(printer):
 
 
 def test_printer(printer):
-    expression = Expr.Binary(
-        Expr.Unary(Token(T.MINUS, "-", None, 1), Expr.Literal(123)),
+    expression = ast.BinaryExpr(
+        ast.UnaryExpr(Token(T.MINUS, "-", None, 1), ast.LiteralExpr(123)),
         Token(T.STAR, "*", None, 1),
-        Expr.Grouping(Expr.Literal(45.67)),
+        ast.GroupingExpr(ast.LiteralExpr(45.67)),
     )
 
     output = printer.print(expression)

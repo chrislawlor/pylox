@@ -5,7 +5,7 @@ from jinja2 import Template
 
 DIR = Path(__file__).parent
 
-
+#         (class, [(var_name, var_type)])
 AstNode = Tuple[str, List[Tuple[str, str]]]
 
 EXPRESSIONS: List[AstNode] = [
@@ -15,14 +15,13 @@ EXPRESSIONS: List[AstNode] = [
     ("Unary", [("operator", "Token"), ("right", "Expr")]),
 ]
 
+STATEMENTS: List[AstNode] = [
+    ("Expression", [("expression", "Expr")]),
+    ("Print", [("expression", "Expr")]),
+]
 
-ASTs = {"Expr": EXPRESSIONS}
 
-
-def define_ast(template: Template, base_class: str, nodes=List[AstNode]):
-    module_name = base_class.lower()
-    with open(DIR / "pylox" / f"{module_name}.py", "w") as f:
-        f.write(template.render(base_class=base_class, nodes=nodes))
+AST_TYPES = [("Expr", EXPRESSIONS), ("Stmt", STATEMENTS)]
 
 
 def load_template():
@@ -33,8 +32,8 @@ def load_template():
 def main():
     template = load_template()
 
-    for base_class, nodes in ASTs.items():
-        define_ast(template, base_class, nodes)
+    with open(DIR / "pylox" / "ast.py", "w") as f:
+        f.write(template.render(types=AST_TYPES))
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 import sys
 from typing import Any
 
-from . import expr as Expr
+from . import ast
 from .token import Token
 from .token import TokenType as T
 
@@ -16,24 +16,24 @@ class LoxDivisionByZero(LoxRuntimeError):
     pass
 
 
-class Interpreter(Expr.Visitor):
+class Interpreter(ast.ExprVisitor):
     def __init__(self, lox, out=sys.stdout):
         from .lox import Lox
 
         self.lox: Lox = lox
         self.out = out
 
-    def interpret(self, expression: Expr.Expr) -> None:
+    def interpret(self, expression: ast.Expr) -> None:
         try:
             value = self.evaluate(expression)
             print(self.stringify(value), file=self.out)
         except LoxRuntimeError as error:
             self.lox.runtime_error(error)
 
-    def evaluate(self, expr: Expr.Expr):
+    def evaluate(self, expr: ast.Expr):
         return expr.accept(self)
 
-    def visit_binary_expr(self, expr: Expr.Binary):
+    def visit_binary_expr(self, expr: ast.BinaryExpr):
         # Lox evaluates expressions in left-to-right order
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
@@ -77,13 +77,13 @@ class Interpreter(Expr.Visitor):
                 # Unreachable
                 return None
 
-    def visit_grouping_expr(self, expr: Expr.Grouping):
+    def visit_grouping_expr(self, expr: ast.GroupingExpr):
         return self.evaluate(expr.expression)
 
-    def visit_literal_expr(self, expr: Expr.Literal):
+    def visit_literal_expr(self, expr: ast.LiteralExpr):
         return expr.value
 
-    def visit_unary_expr(self, expr: Expr.Unary):
+    def visit_unary_expr(self, expr: ast.UnaryExpr):
         right = self.evaluate(expr.right)
 
         match expr.operator.type:

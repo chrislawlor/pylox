@@ -6,27 +6,28 @@ from typing import Any
 
 from .token import Token
 
-
-class Visitor(ABC):
+{% for base_class, nodes in types %}
+class {{ base_class }}Visitor(ABC):
 
     {% for node in nodes %}
     @abstractmethod
-    def visit_{{ node[0].lower() }}_{{ base_class.lower() }}(self, {{ base_class.lower() }}: "{{ node[0] }}"): ...
+    def visit_{{ node[0].lower() }}_{{ base_class.lower() }}(self, {{ base_class.lower() }}: "{{ node[0] }}{{ base_class }}"): ...
     {% endfor %}
 
 
 class {{ base_class }}(ABC):
     @abstractmethod
-    def accept(self, visitor: Visitor):...
+    def accept(self, visitor: {{ base_class }}Visitor):...
 
 {% for node in nodes %}
 @dataclass
-class {{ node[0] }}({{ base_class }}):
+class {{ node[0] }}{{ base_class }}({{ base_class }}):
 {%- for field in node[1] %}
     {{ field[0] }}: {{ field[1] }}
 {%- endfor %}
 
-    def accept(self, visitor: Visitor):
+    def accept(self, visitor: {{ base_class }}Visitor):
         return visitor.visit_{{ node[0].lower() }}_{{ base_class.lower() }}(self)
 
+{% endfor %}
 {% endfor %}

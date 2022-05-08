@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from . import expr as Expr
+from . import ast
 from .token import Token
 from .token import TokenType as T
 
@@ -17,75 +17,75 @@ class Parser:
         self.tokens = tokens
         self.current = 0
 
-    def parse(self) -> Optional[Expr.Expr]:
+    def parse(self) -> Optional[ast.Expr]:
         try:
             return self.expression()
         except ParseError:
             return None
 
-    def expression(self) -> Expr.Expr:
+    def expression(self) -> ast.Expr:
         return self.equality()
 
-    def equality(self) -> Expr.Expr:
+    def equality(self) -> ast.Expr:
         expr = self.comparison()
 
         while self.match(T.BANG_EQUAL, T.EQUAL_EQUAL):
             operator = self.previous()
             right = self.comparison()
-            expr = Expr.Binary(expr, operator, right)
+            expr = ast.BinaryExpr(expr, operator, right)
 
         return expr
 
-    def comparison(self) -> Expr.Expr:
+    def comparison(self) -> ast.Expr:
         expr = self.term()
 
         while self.match(T.GREATER, T.GREATER_EQUAL, T.LESS, T.LESS_EQUAL):
             operator = self.previous()
             right = self.term()
-            expr = Expr.Binary(expr, operator, right)
+            expr = ast.BinaryExpr(expr, operator, right)
 
         return expr
 
-    def term(self) -> Expr.Expr:
+    def term(self) -> ast.Expr:
         expr = self.factor()
 
         while self.match(T.MINUS, T.PLUS):
             operator = self.previous()
             right = self.factor()
-            expr = Expr.Binary(expr, operator, right)
+            expr = ast.BinaryExpr(expr, operator, right)
 
         return expr
 
-    def factor(self) -> Expr.Expr:
+    def factor(self) -> ast.Expr:
         expr = self.unary()
 
         while self.match(T.SLASH, T.STAR):
             operator = self.previous()
             right = self.unary()
-            expr = Expr.Binary(expr, operator, right)
+            expr = ast.BinaryExpr(expr, operator, right)
 
         return expr
 
-    def unary(self) -> Expr.Expr:
+    def unary(self) -> ast.Expr:
         if self.match(T.BANG, T.MINUS):
             operator = self.previous()
             right = self.unary()
-            return Expr.Unary(operator, right)
+            return ast.UnaryExpr(operator, right)
         return self.primary()
 
-    def primary(self) -> Expr.Expr:
+    def primary(self) -> ast.Expr:
         if self.match(T.FALSE):
-            return Expr.Literal(False)
+            return ast.LiteralExpr(False)
         if self.match(T.TRUE):
-            return Expr.Literal(True)
+            return ast.LiteralExpr(True)
 
         if self.match(T.NUMBER, T.STRING):
-            return Expr.Literal(self.previous().literal)
+            return ast.LiteralExpr(self.previous().literal)
 
         if self.match(T.LEFT_PAREN):
             expr = self.expression()
             self.consume(T.RIGHT_PAREN, 'Expect ")" after expression.')
-            return Expr.Grouping(expr)
+            return ast.GroupingExpr(expr)
 
         raise self.error(self.peek(), "Expect expression.")
 
