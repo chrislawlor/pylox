@@ -40,6 +40,15 @@ Lox has a context-free grammar, defined using the following notation:
 |;            | ends a rule|
 
 ```javascript
+program         → statement* EOF
+
+statement       → exprStmt
+                |  printStmt ;
+
+exprStmt        → expression ";" ;
+
+printStmt       → "print" expression ";" ;
+
 expression      → equality ;
 
 equality        → comparison ( ( "!=" | "==" ) comparison )* ;
