@@ -9,6 +9,10 @@ from .token import Token
 
 class ExprVisitor(ABC):
     @abstractmethod
+    def visit_assign_expr(self, expr: "AssignExpr"):
+        ...
+
+    @abstractmethod
     def visit_binary_expr(self, expr: "BinaryExpr"):
         ...
 
@@ -33,6 +37,15 @@ class Expr(ABC):
     @abstractmethod
     def accept(self, visitor: ExprVisitor):
         ...
+
+
+@dataclass
+class AssignExpr(Expr):
+    name: Token
+    value: Expr
+
+    def accept(self, visitor: ExprVisitor):
+        return visitor.visit_assign_expr(self)
 
 
 @dataclass

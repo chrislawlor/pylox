@@ -1,15 +1,23 @@
-from typing import Any
+from typing import Any, Dict
 
 from .exceptions import LoxRuntimeError
 from .token import Token
 
 
-class Environment(dict):
-    def __getitem__(self, token: Token) -> Any:
+class Environment:
+    def __init__(self):
+        self.values: Dict[str, Any] = {}
+
+    def assign(self, name: Token, value: Any) -> None:
+        if name.lexeme in self.values:
+            self.values[name.lexeme] = value
+        raise LoxRuntimeError(f"Undefined variable '{name.lexeme}'.", name)
+
+    def define(self, key: str, value: Any) -> None:
+        self.values[key] = value
+
+    def get(self, token: Token) -> Any:
         try:
-            return super().__getitem__(token.lexeme)
+            return self.values[token.lexeme]
         except KeyError:
             raise LoxRuntimeError(f"Undefined variable '{token.lexeme}'.", token)
-
-    def __setitem__(self, key: str, value: Any) -> None:
-        return super().__setitem__(key, value)

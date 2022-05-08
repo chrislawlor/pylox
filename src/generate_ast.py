@@ -9,6 +9,7 @@ DIR = Path(__file__).parent
 AstNode = Tuple[str, List[Tuple[str, str]]]
 
 EXPRESSIONS: List[AstNode] = [
+    ("Assign", [("name", "Token"), ("value", "Expr")]),
     ("Binary", [("left", "Expr"), ("operator", "Any"), ("right", "Expr")]),
     ("Grouping", [("expression", "Expr")]),
     ("Literal", [("value", "Any")]),

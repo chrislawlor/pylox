@@ -45,7 +45,12 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
         if stmt.intitializer is not None:
             value = self.evaluate(stmt.intitializer)
 
-        self.environment[stmt.name.lexeme] = value
+        self.environment.define(stmt.name.lexeme, value)
+
+    def visit_assign_expr(self, expr: ast.AssignExpr) -> Any:
+        value = self.evaluate(expr.value)
+        self.environment.assign(expr.name, value)
+        return value
 
     def visit_binary_expr(self, expr: ast.BinaryExpr):
         # Lox evaluates expressions in left-to-right order
