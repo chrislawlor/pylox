@@ -12,10 +12,12 @@ from .token import TokenType as T
 class Lox:
     PROMPT = "> "
 
-    def __init__(self):
-        self.interpreter = Interpreter(self)
+    def __init__(self, out=sys.stdout, err=sys.stderr):
+        self.interpreter = Interpreter(self, out=out)
         self.had_error = False
         self.had_runtime_error = False
+        self.out = out
+        self.err = err
 
     def run_file(self, path: Path):
         with open(path) as f:
@@ -62,9 +64,9 @@ class Lox:
             self.report(token.line, f" at '{token.lexeme}'", message)
 
     def runtime_error(self, error: LoxRuntimeError):
-        print(f"{error}\n[line {error.token.line}]", file=sys.stderr)
+        print(f"{error}\n[line {error.token.line}]", file=self.err)
         self.had_runtime_error = True
 
     def report(self, line: int, where: str, message: str):
-        print(f"[line {line}] Error{where}: {message}", file=sys.stdout)
+        print(f"[line {line}] Error{where}: {message}", file=self.err)
         self.had_error = True

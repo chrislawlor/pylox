@@ -1,12 +1,9 @@
 from typing import List
 
 from . import ast
+from .exceptions import ParseError
 from .token import Token
 from .token import TokenType as T
-
-
-class ParseError(Exception):
-    pass
 
 
 class Parser:
@@ -20,11 +17,20 @@ class Parser:
     def parse(self) -> List[ast.Stmt]:
         statements: List[ast.Stmt] = []
         while not self.is_at_end():
-            statements.append(self.statement())
+            statements.append(self.declaration())
         return statements
 
     def expression(self) -> ast.Expr:
         return self.equality()
+
+    def declaration(self) -> ast.Stmt:
+        try:
+            if self.match(T.VAR):
+                return self.var_declaration()
+            return self.statement()
+        except ParseError:
+            self.synchronize()
+            raise
 
     def statement(self) -> ast.Stmt:
         if self.match(T.PRINT):
@@ -35,6 +41,16 @@ class Parser:
         value = self.expression()
         self.consume(T.SEMICOLON, 'Expect ";" after value.')
         return ast.PrintStmt(value)
+
+    def var_declaration(self) -> ast.Stmt:
+        name = self.consume(T.IDENTIFIER, "Expect variable name.")
+
+        initializer = None
+        if self.match(T.EQUAL):
+            initializer = self.expression()
+
+        self.consume(T.SEMICOLON, 'Expect ";" after variable declaration.')
+        return ast.VarStmt(name, initializer)
 
     def expression_statement(self) -> ast.Stmt:
         expr = self.expression()
@@ -96,6 +112,9 @@ class Parser:
 
         if self.match(T.NUMBER, T.STRING):
             return ast.LiteralExpr(self.previous().literal)
+
+        if self.match(T.IDENTIFIER):
+            return ast.VariableExpr(self.previous())
 
         if self.match(T.LEFT_PAREN):
             expr = self.expression()

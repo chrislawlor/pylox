@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 from .token import Token
 
@@ -22,6 +22,10 @@ class ExprVisitor(ABC):
 
     @abstractmethod
     def visit_unary_expr(self, expr: "UnaryExpr"):
+        ...
+
+    @abstractmethod
+    def visit_variable_expr(self, expr: "VariableExpr"):
         ...
 
 
@@ -66,6 +70,14 @@ class UnaryExpr(Expr):
         return visitor.visit_unary_expr(self)
 
 
+@dataclass
+class VariableExpr(Expr):
+    name: Token
+
+    def accept(self, visitor: ExprVisitor):
+        return visitor.visit_variable_expr(self)
+
+
 class StmtVisitor(ABC):
     @abstractmethod
     def visit_expression_stmt(self, stmt: "ExpressionStmt"):
@@ -73,6 +85,10 @@ class StmtVisitor(ABC):
 
     @abstractmethod
     def visit_print_stmt(self, stmt: "PrintStmt"):
+        ...
+
+    @abstractmethod
+    def visit_var_stmt(self, stmt: "VarStmt"):
         ...
 
 
@@ -96,3 +112,12 @@ class PrintStmt(Stmt):
 
     def accept(self, visitor: StmtVisitor):
         return visitor.visit_print_stmt(self)
+
+
+@dataclass
+class VarStmt(Stmt):
+    name: Token
+    intitializer: Optional[Expr]
+
+    def accept(self, visitor: StmtVisitor):
+        return visitor.visit_var_stmt(self)

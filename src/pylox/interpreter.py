@@ -2,14 +2,10 @@ import sys
 from typing import Any, List
 
 from . import ast
+from .environment import Environment
+from .exceptions import LoxRuntimeError
 from .token import Token
 from .token import TokenType as T
-
-
-class LoxRuntimeError(Exception):
-    def __init__(self, message, token: Token):
-        super().__init__(message)
-        self.token = token
 
 
 class LoxDivisionByZero(LoxRuntimeError):
@@ -21,6 +17,7 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
         from .lox import Lox
 
         self.lox: Lox = lox
+        self.environment = Environment()
         self.out = out
 
     def interpret(self, statements: List[ast.Stmt]) -> None:
@@ -42,6 +39,13 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
     def visit_print_stmt(self, stmt: ast.PrintStmt):
         value = self.evaluate(stmt.expression)
         print(self.stringify(value), file=self.out)
+
+    def visit_var_stmt(self, stmt: ast.VarStmt):
+        value = None
+        if stmt.intitializer is not None:
+            value = self.evaluate(stmt.intitializer)
+
+        self.environment[stmt.name.lexeme] = value
 
     def visit_binary_expr(self, expr: ast.BinaryExpr):
         # Lox evaluates expressions in left-to-right order
@@ -104,6 +108,9 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
 
         # Unreachable
         return None
+
+    def visit_variable_expr(self, expr: ast.VariableExpr) -> Any:
+        return self.environment[expr.name]
 
     def check_number_operand(self, operator: Token, operand):
         if self.is_number(operand):

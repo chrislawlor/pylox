@@ -13,11 +13,13 @@ EXPRESSIONS: List[AstNode] = [
     ("Grouping", [("expression", "Expr")]),
     ("Literal", [("value", "Any")]),
     ("Unary", [("operator", "Token"), ("right", "Expr")]),
+    ("Variable", [("name", "Token")]),
 ]
 
 STATEMENTS: List[AstNode] = [
     ("Expression", [("expression", "Expr")]),
     ("Print", [("expression", "Expr")]),
+    ("Var", [("name", "Token"), ("intitializer", "Optional[Expr]")]),
 ]
 
 

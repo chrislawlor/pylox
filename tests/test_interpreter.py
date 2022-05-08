@@ -19,8 +19,9 @@ def test_interpret():
     output = StringIO()
     interpreter = Interpreter(Lox(), out=output)
     expr = ast.LiteralExpr(1.0)
+    stmt = ast.PrintStmt(expr)
 
-    interpreter.interpret(expr)
+    interpreter.interpret([stmt])
 
     assert output.getvalue() == "1.0\n"
 
@@ -35,8 +36,9 @@ def test_runtime_error_reports():
         operator=Token(T.SLASH, "/", None, line=1),
         right=ast.LiteralExpr(0),
     )
+    stmt = ast.ExpressionStmt(expr)
 
-    interpreter.interpret(expr)
+    interpreter.interpret([stmt])
 
     lox.runtime_error.assert_called_once()
 

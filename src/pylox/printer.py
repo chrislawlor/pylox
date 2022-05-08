@@ -21,6 +21,9 @@ class AstPrinter(ast.ExprVisitor):
     def visit_unary_expr(self, expr: ast.UnaryExpr):
         return self.parenthesize(expr.operator.lexeme, expr.right)
 
+    def visit_variable_expr(self, expr: ast.VariableExpr):
+        return self.parenthesize("var", expr)
+
     def parenthesize(self, name: str, *exprs: ast.Expr) -> str:
         buffer = StringIO()
 
