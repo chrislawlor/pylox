@@ -1,6 +1,7 @@
 import sys
 from functools import singledispatchmethod
 from pathlib import Path
+from typing import List
 
 from .interpreter import Interpreter, LoxRuntimeError
 from .parser import Parser
@@ -32,12 +33,24 @@ class Lox:
     def run_prompt(self):
         while True:
             source = input(self.PROMPT)
-            self.run(source)
+            if not source:
+                continue
+            tokens = self.scan(source)
+            print(f"{tokens=}")
+            parser = Parser(self, tokens)
+
+            if not tokens[-2].type == T.SEMICOLON:
+                # Try evaluating as expression
+                expr = parser.expression()
+                value = self.interpreter.evaluate(expr)
+                print(value, file=self.out)
+            else:
+                statements = parser.parse()
+                self.interpreter.interpret(statements)
             self.had_error = False
 
     def run(self, source: str):
-        scanner = Scanner(self, source)
-        tokens = scanner.scan_tokens()
+        tokens = self.scan(source)
         parser = Parser(self, tokens)
 
         statements = parser.parse()
@@ -47,6 +60,10 @@ class Lox:
             return
 
         self.interpreter.interpret(statements)
+
+    def scan(self, source: str) -> List[Token]:
+        scanner = Scanner(self, source)
+        return scanner.scan_tokens()
 
     @singledispatchmethod
     def error(self, arg, message: str):
