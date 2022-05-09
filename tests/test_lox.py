@@ -13,7 +13,11 @@ def lox():
 
 
 @pytest.mark.parametrize(
-    "statement", ["var a;", "print 1 + 2;", "1 + 3;", '"one" + "two";']
+    "program", ["var a;", "print 1 + 2;", "1 + 3;", '"one" + "two";', "var a; a = 1;"]
 )
-def test_run_valid_statements(lox, statement):
-    lox.run(statement)
+def test_run_valid_programs(lox: Lox, program):
+    lox.run(program)
+
+    errors = lox.err.getvalue()
+
+    assert errors == ""

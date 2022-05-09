@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from .token import Token
 
@@ -93,6 +93,10 @@ class VariableExpr(Expr):
 
 class StmtVisitor(ABC):
     @abstractmethod
+    def visit_block_stmt(self, stmt: "BlockStmt"):
+        ...
+
+    @abstractmethod
     def visit_expression_stmt(self, stmt: "ExpressionStmt"):
         ...
 
@@ -109,6 +113,14 @@ class Stmt(ABC):
     @abstractmethod
     def accept(self, visitor: StmtVisitor):
         ...
+
+
+@dataclass
+class BlockStmt(Stmt):
+    statements: List[Stmt]
+
+    def accept(self, visitor: StmtVisitor):
+        return visitor.visit_block_stmt(self)
 
 
 @dataclass

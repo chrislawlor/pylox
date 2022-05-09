@@ -47,6 +47,9 @@ declaration     → varDecl
 
 statement       → exprStmt
                 |  printStmt ;
+                | block ;
+
+block           → "{" declaration "}" ;
 
 varDecl         → "var" IDENTIFIER ( "=" expression )? ";" ;
 

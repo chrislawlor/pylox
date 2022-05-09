@@ -30,8 +30,22 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
     def evaluate(self, expr: ast.Expr):
         return expr.accept(self)
 
+    def execute_block(self, statements: List[ast.Stmt], environment: Environment):
+        previous = self.environment
+
+        try:
+            self.environment = environment
+
+            for statement in statements:
+                self.execute(statement)
+        finally:
+            self.environment = previous
+
     def execute(self, stmt: ast.Stmt):
         stmt.accept(self)
+
+    def visit_block_stmt(self, stmt: ast.BlockStmt):
+        self.execute_block(stmt.statements, Environment(self.environment))
 
     def visit_expression_stmt(self, stmt: ast.ExpressionStmt):
         self.evaluate(stmt.expression)
@@ -115,7 +129,7 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
         return None
 
     def visit_variable_expr(self, expr: ast.VariableExpr) -> Any:
-        return self.environment[expr.name]
+        return self.environment.get(expr.name)
 
     def check_number_operand(self, operator: Token, operand):
         if self.is_number(operand):
