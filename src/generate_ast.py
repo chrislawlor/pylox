@@ -20,6 +20,14 @@ EXPRESSIONS: List[AstNode] = [
 STATEMENTS: List[AstNode] = [
     ("Block", [("statements", "List[Stmt]")]),
     ("Expression", [("expression", "Expr")]),
+    (
+        "If",
+        [
+            ("condition", "Expr"),
+            ("then_branch", "Stmt"),
+            ("else_branch", "Optional[Stmt]"),
+        ],
+    ),
     ("Print", [("expression", "Expr")]),
     ("Var", [("name", "Token"), ("intitializer", "Optional[Expr]")]),
 ]

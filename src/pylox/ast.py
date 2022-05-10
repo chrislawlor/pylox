@@ -101,6 +101,10 @@ class StmtVisitor(ABC):
         ...
 
     @abstractmethod
+    def visit_if_stmt(self, stmt: "IfStmt"):
+        ...
+
+    @abstractmethod
     def visit_print_stmt(self, stmt: "PrintStmt"):
         ...
 
@@ -129,6 +133,16 @@ class ExpressionStmt(Stmt):
 
     def accept(self, visitor: StmtVisitor):
         return visitor.visit_expression_stmt(self)
+
+
+@dataclass
+class IfStmt(Stmt):
+    condition: Expr
+    then_branch: Stmt
+    else_branch: Optional[Stmt]
+
+    def accept(self, visitor: StmtVisitor):
+        return visitor.visit_if_stmt(self)
 
 
 @dataclass
