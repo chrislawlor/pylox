@@ -31,6 +31,7 @@ STATEMENTS: List[AstNode] = [
     ),
     ("Print", [("expression", "Expr")]),
     ("Var", [("name", "Token"), ("intitializer", "Optional[Expr]")]),
+    ("While", [("condition", "Expr"), ("body", "Stmt")]),
 ]
 
 

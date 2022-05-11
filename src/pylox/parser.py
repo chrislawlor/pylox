@@ -37,6 +37,8 @@ class Parser:
             return self.if_statement()
         if self.match(T.PRINT):
             return self.print_statement()
+        if self.match(T.WHILE):
+            return self.while_statement()
         if self.match(T.LEFT_BRACE):
             return ast.BlockStmt(self.block())
         return self.expression_statement()
@@ -67,6 +69,13 @@ class Parser:
 
         self.consume(T.SEMICOLON, 'Expect ";" after variable declaration.')
         return ast.VarStmt(name, initializer)
+
+    def while_statement(self) -> ast.Stmt:
+        self.consume(T.LEFT_PAREN, 'Expect "(" after "while".')
+        condition = self.expression()
+        self.consume(T.RIGHT_PAREN, 'Expect ")" after condition.')
+        body = self.statement()
+        return ast.WhileStmt(condition, body)
 
     def expression_statement(self) -> ast.Stmt:
         expr = self.expression()
