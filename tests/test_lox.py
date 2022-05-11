@@ -33,9 +33,11 @@ def test_run_valid_programs(lox: Lox, program):
         ('print false and "A";', "false"),
         ("var a = 1;print a;", "1"),
         ("var a = 3 - 2;print a;", "1"),
+        ("var a = 0; a = a + 1;print a;", "1"),
         ("var a = 1;{var a = 2;print a;}print a;", "2\n1"),
         ("if (true) print true; else print false;", "true"),
         ("if (false) print false; else print true;", "true"),
+        ("var a = 0;while (a < 2) { print a;a = a + 1; }", "0\n1"),
     ],
 )
 def test_program_for_expected_output(lox: Lox, program: str, expected: str):
