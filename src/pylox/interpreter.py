@@ -122,6 +122,17 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
     def visit_literal_expr(self, expr: ast.LiteralExpr):
         return expr.value
 
+    def visit_logical_expr(self, expr: ast.LogicalExpr):
+        left = self.evaluate(expr.left)
+
+        if expr.operator.type == T.OR:
+            if self.is_truthy(left):
+                return left
+        else:
+            if not self.is_truthy(left):
+                return left
+        return self.evaluate(expr.right)
+
     def visit_unary_expr(self, expr: ast.UnaryExpr):
         right = self.evaluate(expr.right)
 

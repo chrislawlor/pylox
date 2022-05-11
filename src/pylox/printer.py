@@ -16,6 +16,9 @@ class AstPrinter(ast.ExprVisitor):
     def visit_grouping_expr(self, expr: ast.GroupingExpr) -> str:
         return self.parenthesize("group", expr.expression)
 
+    def visit_logical_expr(self, expr: ast.LogicalExpr) -> str:
+        return self.parenthesize(expr.operator.lexeme, expr.left, expr.right)
+
     def visit_literal_expr(self, expr: ast.LiteralExpr) -> str:
         if expr.value is None:
             return "nil"

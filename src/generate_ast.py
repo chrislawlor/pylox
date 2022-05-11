@@ -13,6 +13,7 @@ EXPRESSIONS: List[AstNode] = [
     ("Binary", [("left", "Expr"), ("operator", "Any"), ("right", "Expr")]),
     ("Grouping", [("expression", "Expr")]),
     ("Literal", [("value", "Any")]),
+    ("Logical", [("left", "Expr"), ("operator", "Token"), ("right", "Expr")]),
     ("Unary", [("operator", "Token"), ("right", "Expr")]),
     ("Variable", [("name", "Token")]),
 ]
