@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from . import ast
 from .exceptions import ParseError
@@ -33,6 +33,8 @@ class Parser:
             raise
 
     def statement(self) -> ast.Stmt:
+        if self.match(T.FOR):
+            return self.for_statement()
         if self.match(T.IF):
             return self.if_statement()
         if self.match(T.PRINT):
@@ -42,6 +44,42 @@ class Parser:
         if self.match(T.LEFT_BRACE):
             return ast.BlockStmt(self.block())
         return self.expression_statement()
+
+    def for_statement(self) -> ast.Stmt:
+        self.consume(T.LEFT_PAREN, 'Expect "(" after "for".')
+
+        initializer: Optional[ast.Stmt] = None
+        if self.match(T.SEMICOLON):
+            initializer = None
+        elif self.match(T.VAR):
+            initializer = self.var_declaration()
+        else:
+            initializer = self.expression_statement()
+
+        condition: Optional[ast.Expr] = None
+        if not self.check(T.SEMICOLON):
+            condition = self.expression()
+        self.consume(T.SEMICOLON, 'Expect ";" after loop condition.')
+
+        increment: Optional[ast.Expr] = None
+        if not self.check(T.RIGHT_PAREN):
+            increment = self.expression()
+        self.consume(T.RIGHT_PAREN, 'Expect ")" after for clauses.')
+
+        body = self.statement()
+
+        if increment is not None:
+            body = ast.BlockStmt([body, ast.ExpressionStmt(increment)])
+
+        if condition is None:
+            condition = ast.LiteralExpr(True)
+
+        body = ast.WhileStmt(condition, body)
+
+        if initializer is not None:
+            body = ast.BlockStmt([initializer, body])
+
+        return body
 
     def if_statement(self) -> ast.Stmt:
         self.consume(T.LEFT_PAREN, 'Expect "(" after "if".')
