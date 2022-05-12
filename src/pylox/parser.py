@@ -5,6 +5,8 @@ from .exceptions import ParseError
 from .token import Token
 from .token import TokenType as T
 
+ARGUMENT_LIMIT = 255
+
 
 class Parser:
     def __init__(self, lox, tokens: List[Token]):
@@ -25,6 +27,8 @@ class Parser:
 
     def declaration(self) -> ast.Stmt:
         try:
+            if self.match(T.FUN):
+                return self.function("function")
             if self.match(T.VAR):
                 return self.var_declaration()
             return self.statement()
@@ -120,6 +124,26 @@ class Parser:
         self.consume(T.SEMICOLON, 'Expect ";" after expression.')
         return ast.ExpressionStmt(expr)
 
+    def function(self, kind: str) -> ast.Stmt:
+        name = self.consume(T.IDENTIFIER, f"Expect {kind} name.")
+        self.consume(T.LEFT_PAREN, f'Expect "(" after {kind} name.')
+        parameters: List[Token] = []
+        if not self.check(T.RIGHT_PAREN):
+            while True:
+                if len(parameters) >= ARGUMENT_LIMIT:
+                    self.error(
+                        self.peek(),
+                        f"Can't have more than {ARGUMENT_LIMIT} parameters.",
+                    )
+                parameters.append(self.consume(T.IDENTIFIER, "Expect parameter name."))
+                if not self.match(T.COMMA):
+                    break
+        self.consume(T.RIGHT_PAREN, f'Expect ")" after {kind} parameters.')
+
+        self.consume(T.LEFT_BRACE, f'Expect "{{" after {kind} body')
+        body = self.block()
+        return ast.FunctionStmt(name, parameters, body)
+
     def block(self) -> List[ast.Stmt]:
         statements = []
         while not self.check(T.RIGHT_BRACE) and not self.is_at_end():
@@ -205,7 +229,36 @@ class Parser:
             operator = self.previous()
             right = self.unary()
             return ast.UnaryExpr(operator, right)
-        return self.primary()
+        return self.call()
+
+    def call(self) -> ast.Expr:
+        expr = self.primary()
+
+        while True:
+            if self.match(T.LEFT_PAREN):
+                expr = self.finish_call(expr)
+            else:
+                break
+
+        return expr
+
+    def finish_call(self, callee: ast.Expr) -> ast.Expr:
+        arguments: List[ast.Expr] = []
+        if not self.check(T.RIGHT_PAREN):
+
+            while True:
+                if len(arguments) >= ARGUMENT_LIMIT:
+                    # Parser is in a valid state, do not need to raise
+                    self.error(
+                        self.peek(), f"Can't have more than {ARGUMENT_LIMIT} arguments."
+                    )
+                arguments.append(self.expression())
+                if not self.match(T.COMMA):
+                    break
+
+        paren = self.consume(T.RIGHT_PAREN, 'Expect ")" after arguments.')
+
+        return ast.CallExpr(callee, paren, arguments)
 
     def primary(self) -> ast.Expr:
         if self.match(T.FALSE):

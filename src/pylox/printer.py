@@ -13,6 +13,9 @@ class AstPrinter(ast.ExprVisitor):
     def visit_binary_expr(self, expr: ast.BinaryExpr) -> str:
         return self.parenthesize(expr.operator.lexeme, expr.left, expr.right)
 
+    def visit_call_expr(self, expr: ast.CallExpr) -> str:
+        return self.parenthesize("call", expr.callee)
+
     def visit_grouping_expr(self, expr: ast.GroupingExpr) -> str:
         return self.parenthesize("group", expr.expression)
 

@@ -11,6 +11,7 @@ AstNode = Tuple[str, List[Tuple[str, str]]]
 EXPRESSIONS: List[AstNode] = [
     ("Assign", [("name", "Token"), ("value", "Expr")]),
     ("Binary", [("left", "Expr"), ("operator", "Any"), ("right", "Expr")]),
+    ("Call", [("callee", "Expr"), ("paren", "Token"), ("arguments", "List[Expr]")]),
     ("Grouping", [("expression", "Expr")]),
     ("Literal", [("value", "Any")]),
     ("Logical", [("left", "Expr"), ("operator", "Token"), ("right", "Expr")]),
@@ -21,6 +22,10 @@ EXPRESSIONS: List[AstNode] = [
 STATEMENTS: List[AstNode] = [
     ("Block", [("statements", "List[Stmt]")]),
     ("Expression", [("expression", "Expr")]),
+    (
+        "Function",
+        [("name", "Token"), ("params", "List[Token]"), ("body", "List[Stmt]")],
+    ),
     (
         "If",
         [

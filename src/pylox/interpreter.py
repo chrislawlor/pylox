@@ -1,4 +1,6 @@
 import sys
+import time
+from abc import ABC, abstractmethod
 from typing import Any, List
 
 from . import ast
@@ -12,13 +14,56 @@ class LoxDivisionByZero(LoxRuntimeError):
     pass
 
 
+class Callable(ABC):
+    @abstractmethod
+    def arity(self) -> int:
+        ...
+
+    @abstractmethod
+    def call(self, interpreter: "Interpreter", *arguments: Any) -> Any:
+        ...
+
+
+class Function(Callable):
+    def __init__(self, declaration: ast.FunctionStmt):
+        self.declaration = declaration
+
+    def arity(self) -> int:
+        return len(self.declaration.params)
+
+    def call(self, interpreter: "Interpreter", *arguments: Any) -> Any:
+        environment = Environment(interpreter.globals)
+        for param, argument in zip(self.declaration.params, arguments):
+            environment.define(param.lexeme, argument)
+
+        interpreter.execute_block(self.declaration.body, environment)
+
+    def __str__(self):
+        return f"<fn {self.declaration.name.lexeme}>"
+
+
 class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
     def __init__(self, lox, out=sys.stdout):
         from .lox import Lox
 
         self.lox: Lox = lox
-        self.environment = Environment()
+        self.globals = Environment()  # fixed reference to outermost environment
+        self.environment = self.globals  # changes as we enter and exit blocks
         self.out = out
+
+        # Native functions
+
+        class _clock(Callable):
+            def arity(self):
+                return 0
+
+            def call(self, interpreter, *args):
+                return time.time()
+
+            def __str__(self):
+                return "<native fn _clock>"
+
+        self.globals.define("clock", _clock)
 
     def interpret(self, statements: List[ast.Stmt]) -> None:
         try:
@@ -49,6 +94,10 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
 
     def visit_expression_stmt(self, stmt: ast.ExpressionStmt):
         self.evaluate(stmt.expression)
+
+    def visit_function_stmt(self, stmt: ast.FunctionStmt):
+        function = Function(stmt)
+        self.environment.define(stmt.name.lexeme, function)
 
     def visit_if_stmt(self, stmt: ast.IfStmt):
         if self.is_truthy(self.evaluate(stmt.condition)):
@@ -119,6 +168,22 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
             case _:
                 # Unreachable
                 return None
+
+    def visit_call_expr(self, expr: ast.CallExpr):
+        callee = self.evaluate(expr.callee)
+
+        arguments = [self.evaluate(arg) for arg in expr.arguments]
+
+        if not isinstance(callee, Callable):
+            raise LoxRuntimeError("Can only call functions and classes.", expr.paren)
+
+        if len(arguments) > callee.arity():
+            raise LoxRuntimeError(
+                f"Expected {callee.arity()} arguments but got {len(arguments)}.",
+                expr.paren,
+            )
+
+        return callee.call(self, arguments)
 
     def visit_grouping_expr(self, expr: ast.GroupingExpr):
         return self.evaluate(expr.expression)

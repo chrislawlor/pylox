@@ -39,6 +39,11 @@ def test_run_valid_programs(lox: Lox, program):
         ("if (false) print false; else print true;", "true"),
         ("var a = 0;while (a < 2) { print a;a = a + 1; }", "0\n1"),
         ("for (var a = 1; a < 3; a = a + 1) { print a; }", "1\n2"),
+        ('fun hello(){ print "Hello"; } hello();', "Hello"),
+        (
+            'fun hello(name){ print "Hello, " + name; } hello("Lox");',
+            "Hello, Lox",
+        ),
     ],
 )
 def test_program_for_expected_output(lox: Lox, program: str, expected: str):
