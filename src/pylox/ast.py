@@ -17,6 +17,10 @@ class ExprVisitor(ABC):
         ...
 
     @abstractmethod
+    def visit_call_expr(self, expr: "CallExpr"):
+        ...
+
+    @abstractmethod
     def visit_grouping_expr(self, expr: "GroupingExpr"):
         ...
 
@@ -63,6 +67,16 @@ class BinaryExpr(Expr):
 
 
 @dataclass(frozen=True)
+class CallExpr(Expr):
+    callee: Expr
+    paren: Token
+    arguments: List[Expr]
+
+    def accept(self, visitor: ExprVisitor):
+        return visitor.visit_call_expr(self)
+
+
+@dataclass
 class GroupingExpr(Expr):
     expression: Expr
 
@@ -115,6 +129,10 @@ class StmtVisitor(ABC):
         ...
 
     @abstractmethod
+    def visit_function_stmt(self, stmt: "FunctionStmt"):
+        ...
+
+    @abstractmethod
     def visit_if_stmt(self, stmt: "IfStmt"):
         ...
 
@@ -154,6 +172,16 @@ class ExpressionStmt(Stmt):
 
 
 @dataclass(frozen=True)
+class FunctionStmt(Stmt):
+    name: Token
+    params: List[Token]
+    body: List[Stmt]
+
+    def accept(self, visitor: StmtVisitor):
+        return visitor.visit_function_stmt(self)
+
+
+@dataclass
 class IfStmt(Stmt):
     condition: Expr
     then_branch: Stmt

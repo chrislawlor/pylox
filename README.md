@@ -39,10 +39,11 @@ Lox has a context-free grammar, defined using the following notation:
 |?            | Previous production appears zero or one times|
 |;            | ends a rule|
 
-```javascript
+```
 program         → declaration* EOF
 
-declaration     → varDecl
+declaration     → funDecl
+                | varDecl
                 | statement ;
 
 statement       → exprStmt
@@ -67,6 +68,10 @@ whileStmt       → "while" "(" expression ")" statement;
 
 block           → "{" declaration "}" ;
 
+funDecl         → "fun" function ;
+
+function        → IDENTIFIER "(" parameters? ")" block ;
+
 varDecl         → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 expression      → assignment ;
@@ -87,9 +92,14 @@ term            → factor ( ( "-" | "+" ) factor )* ;
 factor          → unary ( ( "/" | "*" ) unary )* ;
 
 unary           → ( "!" | "-" ) unary
-                | primary ;
+                | call ;
+
+call            → primary ( "(" arguments? ")" )* ;
+
+arguments       → expression ( "," expression )* ;
 
 primary         → NUMBER | STRING | "true" | "false" | "nil"
                 | "(" expression ")"
                 | IDENTIFIER ;
+
 ```
