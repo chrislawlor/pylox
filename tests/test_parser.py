@@ -29,6 +29,21 @@ def create_tokens(*lexemes: str) -> List[Token]:
     return tokens
 
 
+def test_parse_literal_expr():
+    tokens = create_tokens("1", ";")
+    parser = Parser(Lox(), tokens)
+
+    statements = parser.parse()
+
+    assert len(statements) == 1
+    stmt = statements[0]
+    print(f"{type(stmt)=}")
+    assert isinstance(stmt, ast.ExpressionStmt)
+    expr = stmt.expression
+    assert isinstance(expr, ast.LiteralExpr)
+    assert expr.value == 1
+
+
 def test_parse_simple():
     tokens = create_tokens("1", "+", "2", ";")
     parser = Parser(Lox(), tokens)
@@ -118,3 +133,28 @@ def test_parse_unary():
     assert isinstance(stmt, ast.ExpressionStmt)
     expr = stmt.expression
     assert isinstance(expr, ast.UnaryExpr)
+
+
+def test_parse_return_nil():
+    tokens = create_tokens("return", ";")
+    parser = Parser(Lox(), tokens)
+
+    statements = parser.parse()
+
+    assert len(statements) == 1
+    stmt = statements[0]
+    assert isinstance(stmt, ast.ReturnStmt)
+    assert stmt.value is None
+
+
+def test_parser_return_value():
+    tokens = create_tokens("return", "1", ";")
+    parser = Parser(Lox(), tokens)
+
+    statements = parser.parse()
+
+    assert len(statements) == 1
+    stmt = statements[0]
+    assert isinstance(stmt, ast.ReturnStmt)
+    assert isinstance(stmt.value, ast.LiteralExpr)
+    assert stmt.value.value == 1

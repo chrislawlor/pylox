@@ -51,6 +51,7 @@ def test_run_valid_programs(lox: Lox, program):
             'fun hello(name){ print "Hello, " + name; } hello("Lox");',
             "Hello, Lox",
         ),
+        ("fun one(){ return 1; } print one();", "1"),
     ],
 )
 def test_program_for_expected_output(lox: Lox, program: str, expected: str):
