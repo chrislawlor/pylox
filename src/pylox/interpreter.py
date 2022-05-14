@@ -63,7 +63,7 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
             def __str__(self):
                 return "<native fn _clock>"
 
-        self.globals.define("clock", _clock)
+        self.globals.define("clock", _clock())
 
     def interpret(self, statements: List[ast.Stmt]) -> None:
         try:
@@ -170,20 +170,20 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
                 return None
 
     def visit_call_expr(self, expr: ast.CallExpr):
-        callee = self.evaluate(expr.callee)
+        function = self.evaluate(expr.callee)
 
         arguments = [self.evaluate(arg) for arg in expr.arguments]
 
-        if not isinstance(callee, Callable):
+        if not isinstance(function, Callable):
             raise LoxRuntimeError("Can only call functions and classes.", expr.paren)
 
-        if len(arguments) > callee.arity():
+        if len(arguments) > function.arity():
             raise LoxRuntimeError(
-                f"Expected {callee.arity()} arguments but got {len(arguments)}.",
+                f"Expected {function.arity()} arguments but got {len(arguments)}.",
                 expr.paren,
             )
 
-        return callee.call(self, arguments)
+        return function.call(self, arguments)
 
     def visit_grouping_expr(self, expr: ast.GroupingExpr):
         return self.evaluate(expr.expression)

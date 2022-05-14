@@ -13,7 +13,8 @@ def lox():
 
 
 @pytest.mark.parametrize(
-    "program", ["var a;", "print 1 + 2;", "1 + 3;", '"one" + "two";', "var a; a = 1;"]
+    "program",
+    ["var a;", "print 1 + 2;", "1 + 3;", '"one" + "two";', "var a; a = 1;", "clock();"],
 )
 def test_run_valid_programs(lox: Lox, program):
     lox.run(program)
