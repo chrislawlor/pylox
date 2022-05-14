@@ -32,6 +32,8 @@ def test_run_valid_programs(lox: Lox, program):
         ('print false or "A";', "A"),
         ('print "A" and "B";', "B"),
         ('print false and "A";', "false"),
+        ('print "A" + "B";', "AB"),
+        ('var a = "A";print a + "B";', "AB"),
         ("var a = 1;print a;", "1"),
         ("var a = 3 - 2;print a;", "1"),
         ("var a = 0; a = a + 1;print a;", "1"),
@@ -41,6 +43,10 @@ def test_run_valid_programs(lox: Lox, program):
         ("var a = 0;while (a < 2) { print a;a = a + 1; }", "0\n1"),
         ("for (var a = 1; a < 3; a = a + 1) { print a; }", "1\n2"),
         ('fun hello(){ print "Hello"; } hello();', "Hello"),
+        (
+            'fun hello(name){ print name; } hello("Lox");',
+            "Lox",
+        ),
         (
             'fun hello(name){ print "Hello, " + name; } hello("Lox");',
             "Hello, Lox",
