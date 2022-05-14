@@ -183,7 +183,7 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
                 expr.paren,
             )
 
-        return function.call(self, arguments)
+        return function.call(self, *arguments)
 
     def visit_grouping_expr(self, expr: ast.GroupingExpr):
         return self.evaluate(expr.expression)
