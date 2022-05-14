@@ -39,7 +39,7 @@ class Lox:
             print(f"{tokens=}")
             parser = Parser(self, tokens)
 
-            if not tokens[-2].type == T.SEMICOLON:
+            if T.SEMICOLON.value not in source:
                 # Try evaluating as expression
                 expr = parser.expression()
                 value = self.interpreter.evaluate(expr)
