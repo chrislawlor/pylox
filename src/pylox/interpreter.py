@@ -14,6 +14,11 @@ class LoxDivisionByZero(LoxRuntimeError):
     pass
 
 
+class Return(Exception):
+    def __init__(self, value):
+        self.value = value
+
+
 class Callable(ABC):
     @abstractmethod
     def arity(self) -> int:
@@ -36,7 +41,10 @@ class Function(Callable):
         for param, argument in zip(self.declaration.params, arguments):
             environment.define(param.lexeme, argument)
 
-        interpreter.execute_block(self.declaration.body, environment)
+        try:
+            interpreter.execute_block(self.declaration.body, environment)
+        except Return as ret:
+            return ret.value
 
     def __str__(self):
         return f"<fn {self.declaration.name.lexeme}>"
@@ -108,6 +116,13 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
     def visit_print_stmt(self, stmt: ast.PrintStmt):
         value = self.evaluate(stmt.expression)
         print(self.stringify(value), file=self.out)
+
+    def visit_return_stmt(self, stmt: ast.ReturnStmt):
+        value = None
+        if stmt.value is not None:
+            value = self.evaluate(stmt.value)
+
+        raise Return(value)
 
     def visit_var_stmt(self, stmt: ast.VarStmt):
         value = None
