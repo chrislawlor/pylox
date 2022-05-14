@@ -52,6 +52,10 @@ def test_run_valid_programs(lox: Lox, program):
             "Hello, Lox",
         ),
         ("fun one(){ return 1; } print one();", "1"),
+        (
+            "fun out(){ var a = 1; fun in(){ return a; } return in;  } print out()();",
+            "1",
+        ),
     ],
 )
 def test_program_for_expected_output(lox: Lox, program: str, expected: str):

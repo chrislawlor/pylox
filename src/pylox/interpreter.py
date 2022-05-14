@@ -30,14 +30,15 @@ class Callable(ABC):
 
 
 class Function(Callable):
-    def __init__(self, declaration: ast.FunctionStmt):
+    def __init__(self, declaration: ast.FunctionStmt, closure: Environment):
         self.declaration = declaration
+        self.closure = closure
 
     def arity(self) -> int:
         return len(self.declaration.params)
 
     def call(self, interpreter: "Interpreter", *arguments: Any) -> Any:
-        environment = Environment(interpreter.globals)
+        environment = Environment(self.closure)
         for param, argument in zip(self.declaration.params, arguments):
             environment.define(param.lexeme, argument)
 
@@ -104,7 +105,7 @@ class Interpreter(ast.ExprVisitor, ast.StmtVisitor):
         self.evaluate(stmt.expression)
 
     def visit_function_stmt(self, stmt: ast.FunctionStmt):
-        function = Function(stmt)
+        function = Function(stmt, self.environment)
         self.environment.define(stmt.name.lexeme, function)
 
     def visit_if_stmt(self, stmt: ast.IfStmt):
