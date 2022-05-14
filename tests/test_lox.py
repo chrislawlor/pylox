@@ -53,8 +53,27 @@ def test_run_valid_programs(lox: Lox, program):
         ),
         ("fun one(){ return 1; } print one();", "1"),
         (
-            "fun out(){ var a = 1; fun in(){ return a; } return in;  } print out()();",
+            "fun out() { "
+            "  var a = 1;"
+            "  fun in() {"
+            "    return a;"
+            "  } return in;"
+            "}"
+            "print out()();",
             "1",
+        ),
+        # From https://craftinginterpreters.com/resolving-and-binding.html#static-scope
+        (
+            'var a = "global";'
+            "{"
+            "  fun showA() {"
+            "    print a; "
+            "  }"
+            "  showA();"
+            '  var a = "block";'
+            "  showA();"
+            "}",
+            "global\nglobal",
         ),
     ],
 )

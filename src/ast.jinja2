@@ -19,6 +19,7 @@ class {{ base_class }}(ABC):
     @abstractmethod
     def accept(self, visitor: {{ base_class }}Visitor):...
 
+
 {% for node in nodes %}
 @dataclass(frozen=True)
 class {{ node[0] }}{{ base_class }}({{ base_class }}):

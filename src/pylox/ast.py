@@ -76,7 +76,7 @@ class CallExpr(Expr):
         return visitor.visit_call_expr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class GroupingExpr(Expr):
     expression: Expr
 
@@ -185,7 +185,7 @@ class FunctionStmt(Stmt):
         return visitor.visit_function_stmt(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class IfStmt(Stmt):
     condition: Expr
     then_branch: Stmt
@@ -212,7 +212,7 @@ class ReturnStmt(Stmt):
         return visitor.visit_return_stmt(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class VarStmt(Stmt):
     name: Token
     intitializer: Optional[Expr]

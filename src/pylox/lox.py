@@ -5,6 +5,7 @@ from typing import List
 
 from .interpreter import Interpreter, LoxRuntimeError
 from .parser import Parser
+from .resolver import Resolver
 from .scanner import Scanner
 from .token import Token
 from .token import TokenType as T
@@ -58,6 +59,9 @@ class Lox:
         # Stop if there was a syntax error
         if self.had_error:
             return
+
+        resolver = Resolver(self, self.interpreter)
+        resolver.resolve(statements)
 
         self.interpreter.interpret(statements)
 
