@@ -20,7 +20,7 @@ class {{ base_class }}(ABC):
     def accept(self, visitor: {{ base_class }}Visitor):...
 
 {% for node in nodes %}
-@dataclass
+@dataclass(frozen=True)
 class {{ node[0] }}{{ base_class }}({{ base_class }}):
 {%- for field in node[1] %}
     {{ field[0] }}: {{ field[1] }}
